@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.control.Button?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.control.SplitMenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.shape.Circle?>
+<?import com.jfoenix.controls.JFXToggleButton?>
+<?import com.jfoenix.controls.JFXToggleNode?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.control.Tooltip?>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.starea.FXMLController"
+           prefHeight="768.0" prefWidth="1366.0"
+           styleClass="mainWindow"
+           fx:id="mainWindow">
+
+    <Pane>
+        <ImageView>
+            <image>
+                <Image url="@../images/background.png"/>
+            </image>
+        </ImageView>
+    </Pane>
+    <Canvas fx:id="canvas" width="1920" height="1080">
+
+    </Canvas>
+    <BorderPane fx:id="artBoard">
+        <top>
+            <GridPane styleClass="container" hgap="40">
+                <columnConstraints>
+                    <ColumnConstraints halignment="CENTER"/>
+                </columnConstraints>
+<!--                <ImageView fitWidth="60" fitHeight="60" GridPane.rowIndex="0" GridPane.columnIndex="0">-->
+<!--                    <image>-->
+<!--                        <Image url="@../images/logo.png"/>-->
+<!--                    </image>-->
+<!--                </ImageView>-->
+                <GridPane styleClass="menu, menu-top" GridPane.columnIndex="1" GridPane.rowIndex="0" hgap="10">
+                    <SplitMenuButton style="-fx-font-family: 'Open Sans ExtraBold'; -fx-font-size: 20px"
+                                     GridPane.rowIndex="0" GridPane.columnIndex="0"
+                                     styleClass="split-menu-btn, split-menu-btn-lg, split-menu-btn-default"
+                                     text="Art Board"
+                                     fx:id="dropDownMenu">
+                        <items>
+                            <MenuItem fx:id="newArtboard" text="New" onAction="#OnMenuItemSelected"></MenuItem>
+                        </items>
+                    </SplitMenuButton>
+                    <JFXButton fx:id="exportBtn" onAction="#onButtonClicked" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="btn, btn-lg, btn-default"
+                               text=" Export board">
+                        <graphic>
+                            <FontIcon iconLiteral="fas-download"></FontIcon>
+                        </graphic>
+                    </JFXButton>
+                </GridPane>
+                <JFXButton styleClass="btn, btn-lg, btn-success" text=" Collaborate" GridPane.rowIndex="0"
+                           GridPane.columnIndex="2">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-user-plus" iconColor="white"/>
+                    </graphic>
+                </JFXButton>
+            </GridPane>
+        </top>
+        <left>
+            <BorderPane fx:id="leftMenuContainer" styleClass="container">
+                <left>
+                    <VBox styleClass="menu, menu-left" spacing="20" GridPane.columnIndex="0">
+                        <JFXButton fx:id="selectBtn" styleClass="btn, btn-default, menu-button"
+                                   onAction="#onButtonClicked">
+                            <tooltip>
+                                <Tooltip text="Select"/>
+                            </tooltip>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-mouse-pointer" iconSize="20"/>
+                            </graphic>
+                        </JFXButton>
+                        <JFXButton fx:id="undoBtn" styleClass="btn, btn-default, menu-button"
+                                   onAction="#onButtonClicked">
+                            <tooltip>
+                                <Tooltip text="Undo"/>
+                            </tooltip>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-undo" iconSize="20"/>
+                            </graphic>
+                        </JFXButton>
+                        <JFXButton fx:id="colorBtn" styleClass="btn, btn-default, menu-button"
+                                   onAction="#onButtonClicked">
+                            <tooltip>
+                                <Tooltip text="Select color"/>
+                            </tooltip>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-palette" iconSize="20"/>
+                            </graphic>
+                        </JFXButton>
+                        <JFXButton fx:id="pencilBtn" styleClass="btn, btn-default, menu-button"
+                                   onAction="#onButtonClicked">
+                            <tooltip>
+                                <Tooltip text="Pencil"/>
+                            </tooltip>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-pencil-alt" iconSize="20"/>
+                            </graphic>
+                        </JFXButton>
+                        <JFXButton fx:id="eraserBtn" styleClass="btn, btn-default, menu-button"
+                                   onAction="#onButtonClicked">
+                            <tooltip>
+                                <Tooltip text="Eraser"/>
+                            </tooltip>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-eraser" iconSize="20"/>
+                            </graphic>
+                        </JFXButton>
+                        <JFXButton fx:id="shapeBtn" styleClass="btn, btn-default, menu-button"
+                                   onAction="#onButtonClicked">
+                            <tooltip>
+                                <Tooltip text="Shape"/>
+                            </tooltip>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-shapes" iconSize="20"/>
+                            </graphic>
+                        </JFXButton>
+                        <JFXButton fx:id="uploadBtn" styleClass="btn, btn-default, menu-button"
+                                   onAction="#onButtonClicked">
+                            <tooltip>
+                                <Tooltip text="Upload"/>
+                            </tooltip>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-upload" iconSize="20"/>
+                            </graphic>
+                        </JFXButton>
+                    </VBox>
+                </left>
+            </BorderPane>
+        </left>
+<!--        <right>-->
+<!--            <BorderPane fx:id="rightMenuContainer" styleClass="container">-->
+<!--                <left>-->
+<!--                    <VBox styleClass="menu, menu-right" spacing="20" GridPane.columnIndex="0">-->
+<!--                        <JFXButton fx:id="zoomInBtn" styleClass="btn, btn-default, menu-button" onAction="#onButtonClicked">-->
+<!--                            <graphic>-->
+<!--                                <FontIcon iconLiteral="fas-plus" iconSize="20"/>-->
+<!--                            </graphic>-->
+<!--                        </JFXButton>-->
+<!--                        <Label fx:id="zoomPercent" style="-fx-font-family: 'Open Sans Light'; -fx-font-size: 15px;">-->
+
+<!--                        </Label>-->
+<!--                        <JFXButton fx:id="zoomOutBtn" styleClass="btn, btn-default, menu-button" onAction="#onButtonClicked">-->
+<!--                            <graphic>-->
+<!--                                <FontIcon iconLiteral="fas-minus" iconSize="20"/>-->
+<!--                            </graphic>-->
+<!--                        </JFXButton>-->
+<!--                        <JFXButton styleClass="btn, btn-default, menu-button">-->
+<!--                            <graphic>-->
+<!--                                <FontIcon iconLiteral="far-hand-paper" iconSize="20"/>-->
+<!--                            </graphic>-->
+<!--                        </JFXButton>-->
+<!--                    </VBox>-->
+<!--                </left>-->
+<!--            </BorderPane>-->
+<!--        </right>-->
+    </BorderPane>
+</StackPane>

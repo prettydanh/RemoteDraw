@@ -1,0 +1,32 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
+    id 'org.beryx.jlink' version '2.12.0'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+javafx {
+    version = "13.0.1"
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
+}
+
+mainClassName = "$moduleName/com.starea.MainApp"
+
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = 'remotedraw'
+    }
+}
+
+dependencies {
+    compile 'org.kordamp.bootstrapfx:bootstrapfx-core:0.2.4'
+    compile group: 'org.kordamp.ikonli', name: 'ikonli-core', version: '11.3.4'
+    compile 'org.kordamp.ikonli:ikonli-fontawesome5-pack:11.3.4'
+    compile 'org.kordamp.ikonli:ikonli-javafx:11.3.4'
+    compile 'com.jfoenix:jfoenix:9.0.8'
+}
