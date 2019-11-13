@@ -18,3 +18,5 @@ This application must meet some technical requirements:
   + Export drawings into PNG format
 - Local network connectivity:
   + Invite other users to contribute to the drawing
+# GUI
+  ![alt text](src/main/resources/images/GUI.PNG)
