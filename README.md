@@ -19,4 +19,4 @@ This application must meet some technical requirements:
 - Local network connectivity:
   + Invite other users to contribute to the drawing
   # GUI
-  ![alt text](http://url/to/img.png)
+  ![alt text](src/main/resources/images/GUI.PNG)
