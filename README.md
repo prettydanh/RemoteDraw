@@ -4,7 +4,7 @@ Project Description
 The drawing board provides users abilities to customize their drawings; we could find out some applications such as Windows Paint, Artweaver, GIMP… However, these programs only available for one user at the time. <b>Remote Draw</b> can allow multiple users to draw on board simultaneously through a local network like cable connection, Wifi, or Bluetooth.
 # Drawing Class Diagram
   ![alt text](src/main/resources/images/DrawingClassDiagram.png)
-  <b>Description</b>:
+  - <b>Description</b>:
     + DrawingMode: Define functions of application
     + Infrastructure: Define essential information about drawing and connection of the application
     + Shape: Define any shape that is drew on the canvas
