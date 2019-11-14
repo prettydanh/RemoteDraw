@@ -6,6 +6,10 @@ import javafx.scene.paint.Color;
 
 import java.util.*;
 
+
+/**
+ * Store and draw graphic elements like shape and stroke to the canvas
+ */
 public class Drawing {
 
     //region Private Attributes
