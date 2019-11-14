@@ -1,7 +1,7 @@
 # Remote Draw Application
 Project Description
 # Definition
-The drawing board provides users abilities to customize their drawings; we could find out some applications such as Windows Paint, Artweaver, GIMP… However, these programs only available for one user at the time. <span><strong>Remote Draw<strong><span> can allow multiple users to draw on board simultaneously through a local network like cable connection, Wifi, or Bluetooth.
+The drawing board provides users abilities to customize their drawings; we could find out some applications such as Windows Paint, Artweaver, GIMP… However, these programs only available for one user at the time. <b>Remote Draw</b> can allow multiple users to draw on board simultaneously through a local network like cable connection, Wifi, or Bluetooth.
 # Technologies:
  - Programming language: Java
  - Framework: JavaSDK 11, JavaFX 13
