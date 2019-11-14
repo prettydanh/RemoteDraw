@@ -20,3 +20,5 @@ This application must meet some technical requirements:
   + Invite other users to contribute to the drawing
 # GUI
   ![alt text](src/main/resources/images/GUI.PNG)
+# Credit
+  - Author: Lê Đức Thịnh (ducthinh2111), Nguyễn Hoàng Danh (prettydanh)
