@@ -21,4 +21,6 @@ We are in need of creating an application that can allow multiple users to draw 
 # GUI
   ![alt text](src/main/resources/images/GUI.PNG)
 # Credit
-  - Author: Lê Đức Thịnh (ducthinh2111), Nguyễn Hoàng Danh (prettydanh)
+  - Author: 
+    + Lê Đức Thịnh (ducthinh2111) ID: 17110076
+    + Nguyễn Hoàng Danh (prettydanh) ID: 17110009
