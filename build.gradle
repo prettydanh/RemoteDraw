@@ -14,7 +14,9 @@ javafx {
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
 }
 
-mainClassName = "$moduleName/com.starea.MainApp"
+application {
+    mainClassName = "$moduleName/com.starea.MainApp"
+}
 
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
