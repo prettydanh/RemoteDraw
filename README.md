@@ -16,7 +16,7 @@ The drawing board provides users abilities to customize their drawings; we could
 # Technologies:
  - Programming language: Java
  - Framework: JavaSDK 11, JavaFX 13
- - Platform: Multiplatform
+ - Platform: Windows, Linux
 # Features
 - Drawing abilities:
   + Select
