@@ -1,12 +1,12 @@
 package com.starea;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXColorPicker;
-import com.jfoenix.controls.JFXSlider;
-import com.jfoenix.controls.JFXToggleNode;
+import com.jfoenix.controls.*;
+import com.starea.converter.DrawingObjectsToStringConverter;
 import com.starea.datamodel.*;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -35,12 +35,11 @@ import javafx.stage.Window;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.io.File;
+import java.io.*;
 import java.lang.Object;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.*;
 
 import static java.awt.image.ImageObserver.HEIGHT;
@@ -58,12 +57,22 @@ public class FXMLController {
     private BorderPane artBoard;
     @FXML
     private SplitMenuButton dropDownMenu;
+    @FXML
+    private JFXButton inviteBtn;
+    @FXML
+    private JFXButton joinBtn;
+    @FXML
+    private JFXButton leaveBtn;
 
     private GridPane colorMenu;
     private GridPane pencilMenu;
     private GridPane eraserMenu;
     private GridPane shapeMenu;
+    private GridPane popupToShowCode;
+    private GridPane joinForm;
+    private GridPane notificationPopup;
     private ColorPicker picker;
+    private JFXButton submitBtn;
     private List<JFXButton> colorListBtn;
     private List<JFXButton> shapeListBtn;
     private JFXSlider penSizeSlider;
@@ -71,6 +80,13 @@ public class FXMLController {
     private JFXSlider thicknessSlider;
     private Drawing drawing;
     private boolean isChanged = false;
+    private boolean isConnected = false;
+    private JFXTextField codeTextField;
+    private JFXTextField nameTextField;
+
+    private String data;
+    private String action;
+    private Socket socket;
     //endregion
 
     //region Public Method
@@ -132,6 +148,52 @@ public class FXMLController {
         if (((JFXButton) e.getSource()).getId().equals("exportBtn")) {
             export();
         }
+
+        if (((JFXButton) e.getSource()).getId().equals("inviteBtn")) {
+            invite();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Runnable updater = new Runnable() {
+
+                        @Override
+                        public void run() {
+                            createPopupToShowCode(Infrastructure.getInstance().getCode());
+                            leftMenuContainer.setMargin(popupToShowCode, new Insets(0, 0, 0, 365));
+                            leftMenuContainer.setRight(popupToShowCode);
+                            inviteBtn.setDisable(true);
+                            leaveBtn.setDisable(false);
+                            joinBtn.setDisable(true);
+                            clearBufferInfo();
+                        }
+                    };
+                    String temp = Infrastructure.getInstance().getCode();
+                    try {
+                        while (temp == null) {
+                            temp = Infrastructure.getInstance().getCode();
+                            Thread.sleep(1);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    Platform.runLater(updater);
+                }
+
+            });
+            thread.setDaemon(true);
+            thread.start();
+        } else {
+            leftMenuContainer.getChildren().remove(popupToShowCode);
+        }
+
+        if (((JFXButton) e.getSource()).getId().equals("joinBtn")) {
+            createJoinForm();
+            leftMenuContainer.setMargin(joinForm, new Insets(0, 0, 0, 510));
+            leftMenuContainer.setRight(joinForm);
+        } else {
+            leftMenuContainer.getChildren().remove(joinForm);
+        }
     }
 
     @FXML
@@ -168,7 +230,7 @@ public class FXMLController {
     private void prepare() {
 
         //region Initialize color, thickness, pen size, zoom percent, eraser size and the current function
-        Infrastructure.getInstance().setColor(Color.web("#000000"));
+        Infrastructure.getInstance().setColor(Color.web("#000000").toString());
         Infrastructure.getInstance().setThickness(1);
         Infrastructure.getInstance().setPenSize(1);
         Infrastructure.getInstance().setEraserSize(1);
@@ -289,9 +351,70 @@ public class FXMLController {
         //Handle mouse action event
         onMouseActionEvent();
 
+        //Disable leave button
+        leaveBtn.setDisable(true);
 
         //endregion
         drawing = new Drawing(canvas);
+
+        clearBufferInfo();
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Runnable updater = new Runnable() {
+
+                    @Override
+                    public void run() {
+                        createNotificationPopup();
+                        leftMenuContainer.setMargin(notificationPopup, new Insets(0, 0, 0, 300));
+                        leftMenuContainer.setRight(notificationPopup);
+                        clearBufferInfo();
+                    }
+                };
+
+                Runnable remover = new Runnable() {
+                    @Override
+                    public void run() {
+                        leftMenuContainer.getChildren().remove(notificationPopup);
+                    }
+                };
+                while (true) {
+                    try {
+                        String message = Infrastructure.getInstance().getNotification();
+                        while (message == null) {
+                            message = Infrastructure.getInstance().getNotification();
+                            Thread.sleep(1);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    Platform.runLater(updater);
+
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    Platform.runLater(remover);
+                }
+            }
+
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void clearBufferInfo() {
+        Infrastructure.getInstance().setCode(null);
+        Infrastructure.getInstance().setNotification(null);
+        Infrastructure.getInstance().setResult(null);
+        Infrastructure.getInstance().setProtocol(null);
+        Infrastructure.getInstance().setJoinCode(null);
+        Infrastructure.getInstance().setData(null);
+        Infrastructure.getInstance().setName(null);
     }
 
     /**
@@ -302,6 +425,9 @@ public class FXMLController {
         leftMenuContainer.getChildren().remove(pencilMenu);
         leftMenuContainer.getChildren().remove(eraserMenu);
         leftMenuContainer.getChildren().remove(shapeMenu);
+        leftMenuContainer.getChildren().remove(popupToShowCode);
+        leftMenuContainer.getChildren().remove(joinForm);
+
     }
 
     /**
@@ -393,6 +519,128 @@ public class FXMLController {
         shapeMenu.add(thicknessSlider, 0, 2);
     }
 
+    private void createPopupToShowCode(String code) {
+        popupToShowCode = new GridPane();
+        popupToShowCode.getStyleClass().add("menu");
+        popupToShowCode.setMaxWidth(500);
+        popupToShowCode.setMaxHeight(50);
+
+        Label lb1 = new Label();
+        lb1.setText("Send this code to your friend and start drawing together:");
+        lb1.setStyle("-fx-font-family: 'Open Sans ExtraBold'; -fx-font-size: 15px;");
+
+        Label lb2 = new Label();
+        lb2.setText(code);
+        lb2.setStyle("-fx-font-family: 'Open Sans ExtraBold'; -fx-font-size: 30px; -fx-text-fill: #22a7f2");
+
+        popupToShowCode.setVgap(7);
+        popupToShowCode.setHgap(7);
+        popupToShowCode.add(lb1, 0, 0);
+        popupToShowCode.add(lb2, 1, 0);
+
+    }
+
+    private void createJoinForm() {
+        joinForm = new GridPane();
+        joinForm.getStyleClass().add("menu");
+        joinForm.setMaxWidth(500);
+        joinForm.setMaxHeight(50);
+        codeTextField = new JFXTextField();
+        codeTextField.setPromptText("Code");
+        nameTextField = new JFXTextField();
+        nameTextField.setPromptText("Name");
+        submitBtn = new JFXButton("Submit");
+        submitBtn.getStyleClass().add("btn-primary");
+        submitBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (codeTextField.getText().equals("") || nameTextField.getText().equals("")) {
+                    Alert alert = new Alert(Alert.AlertType.NONE);
+                    alert.setTitle("Alert");
+                    alert.setContentText("Please enter code and name to submit");
+                    ButtonType cancelBtn = new ButtonType("OK", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                    alert.getButtonTypes().setAll(cancelBtn);
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == cancelBtn) {
+                        alert.close();
+                    }
+                } else {
+                    join();
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Runnable updater = new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    if (Infrastructure.getInstance().getResult().equals("Failed")) {
+                                        Alert alert = new Alert(Alert.AlertType.NONE);
+                                        alert.setTitle("Alert");
+                                        alert.setContentText("Cannot find any artboard");
+                                        ButtonType cancelBtn = new ButtonType("OK", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                                        alert.getButtonTypes().setAll(cancelBtn);
+
+                                        Optional<ButtonType> result = alert.showAndWait();
+                                        if (result.get() == cancelBtn) {
+                                            alert.close();
+                                        }
+                                        Infrastructure.getInstance().setProtocol("TERMINATE");
+                                    } else {
+                                        try {
+                                            drawing.setGraphicElements((DrawingObjectsToStringConverter.fromString(Infrastructure.getInstance().getData())));
+                                            drawing.Render();
+                                        } catch (IOException | ClassNotFoundException e) {
+                                            e.printStackTrace();
+                                        }
+                                        inviteBtn.setDisable(true);
+                                        leaveBtn.setDisable(false);
+                                        joinBtn.setDisable(true);
+                                    }
+                                    clearMenu();
+                                    clearBufferInfo();
+                                }
+                            };
+                            String result = Infrastructure.getInstance().getResult();
+                            try {
+                                while (result == null) {
+                                    result = Infrastructure.getInstance().getResult();
+                                    Thread.sleep(1);
+                                }
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            Platform.runLater(updater);
+                        }
+
+                    });
+                    thread.setDaemon(true);
+                    thread.start();
+                }
+            }
+        });
+        joinForm.setVgap(7);
+        joinForm.add(nameTextField, 0, 0);
+        joinForm.add(codeTextField, 0, 1);
+        joinForm.add(submitBtn, 0, 2);
+    }
+
+    private void createNotificationPopup() {
+        notificationPopup = new GridPane();
+        notificationPopup.getStyleClass().add("menu");
+        notificationPopup.setMaxWidth(500);
+        notificationPopup.setMaxHeight(50);
+
+        Label lb = new Label();
+        lb.setText(Infrastructure.getInstance().getNotification());
+        lb.setStyle("-fx-font-family: 'Open Sans ExtraBold'; -fx-font-size: 20px; -fx-text-fill: #22a7f2");
+
+        notificationPopup.add(lb, 0, 0);
+    }
+
     /**
      * Listen to the changes from color picker and handle color buttons clicked event
      */
@@ -404,7 +652,7 @@ public class FXMLController {
                     clearMenu();
                     Color t = ((Color) ((Circle) btn.getGraphic()).getFill());
                     picker.setValue(t);
-                    Infrastructure.getInstance().setColor(t);
+                    Infrastructure.getInstance().setColor(t.toString());
                 }
             });
         }
@@ -412,7 +660,7 @@ public class FXMLController {
         picker.valueProperty().addListener(new ChangeListener<Color>() {
             @Override
             public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
-                Infrastructure.getInstance().setColor(newValue);
+                Infrastructure.getInstance().setColor(newValue.toString());
             }
         });
     }
@@ -492,7 +740,7 @@ public class FXMLController {
         fc.setTitle("Save Map");
         File file = fc.showSaveDialog(mainWindow.getScene().getWindow());
         if (file != null) {
-            WritableImage wi = new WritableImage((int)mainWindow.getWidth(), (int)mainWindow.getHeight());
+            WritableImage wi = new WritableImage((int) mainWindow.getWidth(), (int) mainWindow.getHeight());
             try {
                 ImageIO.write(SwingFXUtils.fromFXImage(canvas.snapshot(null, wi), null), "png", file);
             } catch (IOException e) {
@@ -562,7 +810,7 @@ public class FXMLController {
                         break;
                     case SELECT:
                         isChanged = true;
-                        List<Object> obj = drawing.getGraphicElements();
+                        List<DrawingObject> obj = drawing.getGraphicElements();
                         for (int i = obj.size() - 1; i >= 0; i--) {
                             if (obj.get(i) instanceof com.starea.datamodel.Rectangle) {
                                 if (((com.starea.datamodel.Rectangle) obj.get(i)).isFill()) {
@@ -653,5 +901,35 @@ public class FXMLController {
             }
         });
     }
+
+    private void invite() {
+        try {
+            Infrastructure.getInstance().setProtocol("INVITE");
+            Infrastructure.getInstance().setData(DrawingObjectsToStringConverter.toString(((Serializable) drawing.getGraphicElements())));
+            socket = new Socket("127.0.0.1", 5000);
+            new ReadThread(socket).start();
+            new WriteThread(socket).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void join() {
+        try {
+            Infrastructure.getInstance().setProtocol("JOIN");
+            Infrastructure.getInstance().setJoinCode(codeTextField.getText());
+            Infrastructure.getInstance().setName(nameTextField.getText());
+            socket = new Socket("127.0.0.1", 5000);
+            new ReadThread(socket).start();
+            new WriteThread(socket).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void leave() {
+
+    }
+
     //endregion
 }

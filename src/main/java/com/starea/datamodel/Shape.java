@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 /**
  * Define any shape that is drew on the canvas
  */
-public class Shape {
+public class Shape extends DrawingObject {
 
     //region Private Attributes
     private double x1;
@@ -12,12 +12,12 @@ public class Shape {
     private double x2;
     private double y2;
     boolean fill;
-    private Color color;
+    private String color;
     private int thickness;
     //endregion
 
     //region Constructor
-    public Shape(double x1, double y1, double x2, double y2, boolean fill, Color color, int thickness) {
+    public Shape(double x1, double y1, double x2, double y2, boolean fill, String color, int thickness) {
         this.x1 = x1;
         this.y1 = y1;
         this.x2 = x2;
@@ -69,11 +69,11 @@ public class Shape {
         this.fill = fill;
     }
 
-    public Color getColor() {
+    public String getColor() {
         return color;
     }
 
-    public void setColor(Color color) {
+    public void setColor(String color) {
         this.color = color;
     }
 

@@ -8,19 +8,19 @@ import java.util.List;
 /**
  * Define any stroke that is drew on the canvas
  */
-public class Stroke {
+public class Stroke extends DrawingObject {
     //region Private Attributes
     private List<Double> path;
-    private double xtl;
-    private double ytl;
-    private double xrb;
-    private double yrb;
-    private Color color;
+//    private double xtl;
+//    private double ytl;
+//    private double xrb;
+//    private double yrb;
+    private String color;
     private int penSize;
     //endregion
 
     //region Constructor
-    public Stroke(List<Double> path, Color color, int penSize) {
+    public Stroke(List<Double> path, String color, int penSize) {
         this.path = path;
         this.color = color;
         this.penSize = penSize;
@@ -36,11 +36,11 @@ public class Stroke {
         this.path = path;
     }
 
-    public Color getColor() {
+    public String getColor() {
         return color;
     }
 
-    public void setColor(Color color) {
+    public void setColor(String color) {
         this.color = color;
     }
 
@@ -52,21 +52,21 @@ public class Stroke {
         this.penSize = penSize;
     }
 
-    public double getXtl() {
-        return xtl;
-    }
-
-    public double getYtl() {
-        return ytl;
-    }
-
-    public double getXrb() {
-        return xrb;
-    }
-
-    public double getYrb() {
-        return yrb;
-    }
+//    public double getXtl() {
+//        return xtl;
+//    }
+//
+//    public double getYtl() {
+//        return ytl;
+//    }
+//
+//    public double getXrb() {
+//        return xrb;
+//    }
+//
+//    public double getYrb() {
+//        return yrb;
+//    }
 
     public boolean isOnStroke(double x, double y) {
         for(int i=0; i<path.size()-2; i+=2) {

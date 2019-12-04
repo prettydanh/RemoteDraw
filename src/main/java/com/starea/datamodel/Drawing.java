@@ -13,8 +13,8 @@ import java.util.*;
 public class Drawing {
 
     //region Private Attributes
-    private List<Object> graphicElements;
-    private List<Object> selectionGraphicElements;
+    private List<DrawingObject> graphicElements;
+    private List<DrawingObject> selectionGraphicElements;
     private GraphicsContext graphicsContext;
     private Canvas canvas;
     private double initX;
@@ -44,10 +44,10 @@ public class Drawing {
             if(object instanceof Rectangle) {
                 Rectangle rectangle = ((Rectangle) object);
                 if(((Rectangle) object).isFill()) {
-                    graphicsContext.setFill(rectangle.getColor());
+                    graphicsContext.setFill(Color.valueOf(rectangle.getColor()));
                     graphicsContext.fillRect(rectangle.getX1(), rectangle.getY1(), rectangle.getWidth(), rectangle.getHeight());
                 } else {
-                    graphicsContext.setStroke(rectangle.getColor());
+                    graphicsContext.setStroke(Color.valueOf(rectangle.getColor()));
                     graphicsContext.setLineWidth(rectangle.getThickness());
                     graphicsContext.strokeRect(rectangle.getX1(), rectangle.getY1(), rectangle.getWidth(), rectangle.getHeight());
                 }
@@ -55,7 +55,7 @@ public class Drawing {
 
             if(object instanceof Stroke) {
                 Stroke stroke = ((Stroke) object);
-                graphicsContext.setStroke(stroke.getColor());
+                graphicsContext.setStroke(Color.valueOf(stroke.getColor()));
                 graphicsContext.setLineWidth(stroke.getPenSize());
                 for(int i=0; i<stroke.getPath().size()-3; i+=2) {
                     graphicsContext.strokeLine(stroke.getPath().get(i), stroke.getPath().get(i+1), stroke.getPath().get(i+2), stroke.getPath().get(i+3));
@@ -65,10 +65,10 @@ public class Drawing {
             if(object instanceof Ellipse) {
                 Ellipse ellipse = ((Ellipse) object);
                 if(ellipse.isFill()) {
-                    graphicsContext.setFill(ellipse.getColor());
+                    graphicsContext.setFill(Color.valueOf(ellipse.getColor()));
                     graphicsContext.fillOval(ellipse.getX1(), ellipse.getY1(), ellipse.getWidth(), ellipse.getHeight());
                 } else {
-                    graphicsContext.setStroke(ellipse.getColor());
+                    graphicsContext.setStroke(Color.valueOf(ellipse.getColor()));
                     graphicsContext.setLineWidth(ellipse.getThickness());
                     graphicsContext.strokeOval(ellipse.getX1(), ellipse.getY1(), ellipse.getWidth(), ellipse.getHeight());
                 }
@@ -102,19 +102,19 @@ public class Drawing {
         Render();
     }
 
-    public List<Object> getSelectionGraphicElements() {
+    public List<DrawingObject> getSelectionGraphicElements() {
         return selectionGraphicElements;
     }
 
-    public void setSelectionGraphicElements(List<Object> selectionGraphicElements) {
+    public void setSelectionGraphicElements(List<DrawingObject> selectionGraphicElements) {
         this.selectionGraphicElements = selectionGraphicElements;
     }
 
-    public List<Object> getGraphicElements() {
+    public List<DrawingObject> getGraphicElements() {
         return graphicElements;
     }
 
-    public void setGraphicElements(List<Object> graphicElements) {
+    public void setGraphicElements(List<DrawingObject> graphicElements) {
         this.graphicElements = graphicElements;
     }
 
@@ -159,7 +159,7 @@ public class Drawing {
      * @param fill true if want to draw a filled rectangle
      * @param thickness the width of border
      */
-    public void initDrawRect(double x, double y, boolean fill, Color color, int thickness) {
+    public void initDrawRect(double x, double y, boolean fill, String color, int thickness) {
         graphicElements.add(new Rectangle(x, y, x, y, fill, color, thickness, "solid"));
         initX = x;
         initY = y;
@@ -209,7 +209,7 @@ public class Drawing {
      * @param fill true if want to draw a filled rectangle
      * @param thickness the width of border
      */
-    public void initDrawEllipse(double x, double y, boolean fill, Color color, int thickness) {
+    public void initDrawEllipse(double x, double y, boolean fill, String color, int thickness) {
         graphicElements.add(new Ellipse(x, y, x, y, fill, color, thickness));
         initX = x;
         initY = y;
@@ -259,7 +259,7 @@ public class Drawing {
      * @param x,y first point added to the path of the stroke
      * @param penSize the width of the stroke
      */
-    public void initDrawStroke(double x, double y, Color color, int penSize) {
+    public void initDrawStroke(double x, double y, String color, int penSize) {
         List<Double> path = new ArrayList<>();
         path.add(x);
         path.add(y);

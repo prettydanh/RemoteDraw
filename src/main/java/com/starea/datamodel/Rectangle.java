@@ -15,7 +15,7 @@ public class Rectangle extends Shape {
     //endregion
 
     //region Constructor
-    public Rectangle(double x1, double y1, double x2, double y2, boolean fill, Color color, int thickness, String type) {
+    public Rectangle(double x1, double y1, double x2, double y2, boolean fill, String color, int thickness, String type) {
         super(x1, y1, x2, y2, fill, color, thickness);
         this.type = type;
     }

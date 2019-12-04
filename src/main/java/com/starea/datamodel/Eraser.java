@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Define any eraser that is drew on the canvas
  */
-public class Eraser {
+public class Eraser extends DrawingObject {
 
     //region Private Attributes
     private List<Double> path;

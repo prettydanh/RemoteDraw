@@ -14,7 +14,7 @@ public class Ellipse extends Shape {
     //endregion
 
     //region Constructor
-    public Ellipse(double x1, double y1, double x2, double y2, boolean fill, Color color, int thickness) {
+    public Ellipse(double x1, double y1, double x2, double y2, boolean fill, String color, int thickness) {
         super(x1, y1, x2, y2, fill, color, thickness);
     }
     //endregion

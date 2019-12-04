@@ -64,10 +64,24 @@
                         </graphic>
                     </JFXButton>
                 </GridPane>
-                <JFXButton styleClass="btn, btn-lg, btn-success" text=" Collaborate" GridPane.rowIndex="0"
-                           GridPane.columnIndex="2">
+                <JFXButton styleClass="btn, btn-lg, btn-primary" text="Invite" GridPane.rowIndex="0"
+                           GridPane.columnIndex="2" fx:id="inviteBtn" onAction="#onButtonClicked">
                     <graphic>
                         <FontIcon iconLiteral="fas-user-plus" iconColor="white"/>
+                    </graphic>
+                </JFXButton>
+
+                <JFXButton styleClass="btn, btn-lg, btn-success" text="Join" GridPane.rowIndex="0"
+                           GridPane.columnIndex="3" fx:id="joinBtn" onAction="#onButtonClicked">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-handshake" iconColor="white"/>
+                    </graphic>
+                </JFXButton>
+
+                <JFXButton styleClass="btn, btn-lg, btn-danger" text="Leave" GridPane.rowIndex="0"
+                           GridPane.columnIndex="4" fx:id="leaveBtn" onAction="#onButtonClicked">
+                    <graphic>
+                        <FontIcon iconLiteral="fa-sign-out" iconColor="white"/>
                     </graphic>
                 </JFXButton>
             </GridPane>
@@ -170,4 +184,5 @@
 <!--            </BorderPane>-->
 <!--        </right>-->
     </BorderPane>
+
 </StackPane>

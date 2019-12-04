@@ -8,11 +8,18 @@ import javafx.scene.paint.Color;
 public class Infrastructure {
     //region Private Attributes
     private static Infrastructure instance = new Infrastructure();
-    private Color color;
+    private String color;
     private int thickness;
     private DrawingMode mode;
     private int penSize;
     private int eraserSize;
+    private String code;
+    private String protocol;
+    private String data;
+    private String joinCode;
+    private String name;
+    private String result;
+    private String notification;
     //endregion
 
     //region Public Methods
@@ -24,7 +31,7 @@ public class Infrastructure {
         return instance;
     }
 
-    public Color getColor() {
+    public String getColor() {
         return color;
     }
 
@@ -44,7 +51,7 @@ public class Infrastructure {
         return eraserSize;
     }
 
-    public void setColor(Color color) {
+    public void setColor(String color) {
         this.color = color;
     }
 
@@ -63,5 +70,62 @@ public class Infrastructure {
     public void setEraserSize(int eraserSize) {
         this.eraserSize = eraserSize;
     }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public String getJoinCode() {
+        return joinCode;
+    }
+
+    public void setJoinCode(String joinCode) {
+        this.joinCode = joinCode;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public String getNotification() {
+        return notification;
+    }
+
+    public void setNotification(String notification) {
+        this.notification = notification;
+    }
+
     //endregion
 }

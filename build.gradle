@@ -31,4 +31,5 @@ dependencies {
     compile 'org.kordamp.ikonli:ikonli-fontawesome5-pack:11.3.4'
     compile 'org.kordamp.ikonli:ikonli-javafx:11.3.4'
     compile 'com.jfoenix:jfoenix:9.0.8'
+    compile 'org.kordamp.ikonli:ikonli-fontawesome-pack:11.3.4'
 }
