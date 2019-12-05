@@ -83,6 +83,8 @@ public class FXMLController {
     private boolean isConnected = false;
     private JFXTextField codeTextField;
     private JFXTextField nameTextField;
+    private ReadThread readThread;
+    private WriteThread writeThread;
 
     private String data;
     private String action;
@@ -158,19 +160,22 @@ public class FXMLController {
 
                         @Override
                         public void run() {
-                            createPopupToShowCode(Infrastructure.getInstance().getCode());
-                            leftMenuContainer.setMargin(popupToShowCode, new Insets(0, 0, 0, 365));
-                            leftMenuContainer.setRight(popupToShowCode);
-                            inviteBtn.setDisable(true);
-                            leaveBtn.setDisable(false);
-                            joinBtn.setDisable(true);
-                            clearBufferInfo();
+                            if (Infrastructure.getInstance().getResult().equals("Success")) {
+                                isConnected = true;
+                                createPopupToShowCode(Infrastructure.getInstance().getCode());
+                                leftMenuContainer.setMargin(popupToShowCode, new Insets(0, 0, 0, 365));
+                                leftMenuContainer.setRight(popupToShowCode);
+                                inviteBtn.setDisable(true);
+                                leaveBtn.setDisable(false);
+                                joinBtn.setDisable(true);
+                                Infrastructure.getInstance().setResult(null);
+                            }
                         }
                     };
-                    String temp = Infrastructure.getInstance().getCode();
+                    String result = Infrastructure.getInstance().getResult();
                     try {
-                        while (temp == null) {
-                            temp = Infrastructure.getInstance().getCode();
+                        while (result == null) {
+                            result = Infrastructure.getInstance().getResult();
                             Thread.sleep(1);
                         }
                     } catch (InterruptedException e) {
@@ -193,6 +198,10 @@ public class FXMLController {
             leftMenuContainer.setRight(joinForm);
         } else {
             leftMenuContainer.getChildren().remove(joinForm);
+        }
+
+        if (((JFXButton) e.getSource()).getId().equals("leaveBtn")) {
+            leave();
         }
     }
 
@@ -357,9 +366,10 @@ public class FXMLController {
         //endregion
         drawing = new Drawing(canvas);
 
-        clearBufferInfo();
+        Infrastructure.getInstance().setResult(null);
+        Infrastructure.getInstance().setNotification(null);
 
-        Thread thread = new Thread(new Runnable() {
+        Thread notificationThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 Runnable updater = new Runnable() {
@@ -369,7 +379,7 @@ public class FXMLController {
                         createNotificationPopup();
                         leftMenuContainer.setMargin(notificationPopup, new Insets(0, 0, 0, 300));
                         leftMenuContainer.setRight(notificationPopup);
-                        clearBufferInfo();
+                        Infrastructure.getInstance().setNotification(null);
                     }
                 };
 
@@ -403,18 +413,42 @@ public class FXMLController {
             }
 
         });
-        thread.setDaemon(true);
-        thread.start();
-    }
+        notificationThread.setDaemon(true);
+        notificationThread.start();
 
-    private void clearBufferInfo() {
-        Infrastructure.getInstance().setCode(null);
-        Infrastructure.getInstance().setNotification(null);
-        Infrastructure.getInstance().setResult(null);
-        Infrastructure.getInstance().setProtocol(null);
-        Infrastructure.getInstance().setJoinCode(null);
-        Infrastructure.getInstance().setData(null);
-        Infrastructure.getInstance().setName(null);
+        Thread HandleDisconnectThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Runnable handler = new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (isConnected) {
+                            Infrastructure.getInstance().setProtocol("TERMINATE");
+                            leaveBtn.setDisable(true);
+                            inviteBtn.setDisable(false);
+                            joinBtn.setDisable(false);
+                            System.out.println("Disconnected");
+                            isConnected = false;
+                        }
+                    }
+                };
+                try {
+                    String result = Infrastructure.getInstance().getResult();
+                    while (result == null || !result.equals("Failed")) {
+                        result = Infrastructure.getInstance().getResult();
+                        Thread.sleep(1);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                Platform.runLater(handler);
+            }
+
+        });
+        HandleDisconnectThread.setDaemon(true);
+        HandleDisconnectThread.start();
     }
 
     /**
@@ -555,17 +589,7 @@ public class FXMLController {
             @Override
             public void handle(ActionEvent event) {
                 if (codeTextField.getText().equals("") || nameTextField.getText().equals("")) {
-                    Alert alert = new Alert(Alert.AlertType.NONE);
-                    alert.setTitle("Alert");
-                    alert.setContentText("Please enter code and name to submit");
-                    ButtonType cancelBtn = new ButtonType("OK", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-                    alert.getButtonTypes().setAll(cancelBtn);
-
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (result.get() == cancelBtn) {
-                        alert.close();
-                    }
+                    Infrastructure.getInstance().setNotification("Please enter name and code to submit");
                 } else {
                     join();
                     Thread thread = new Thread(new Runnable() {
@@ -575,20 +599,8 @@ public class FXMLController {
 
                                 @Override
                                 public void run() {
-                                    if (Infrastructure.getInstance().getResult().equals("Failed")) {
-                                        Alert alert = new Alert(Alert.AlertType.NONE);
-                                        alert.setTitle("Alert");
-                                        alert.setContentText("Cannot find any artboard");
-                                        ButtonType cancelBtn = new ButtonType("OK", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-                                        alert.getButtonTypes().setAll(cancelBtn);
-
-                                        Optional<ButtonType> result = alert.showAndWait();
-                                        if (result.get() == cancelBtn) {
-                                            alert.close();
-                                        }
-                                        Infrastructure.getInstance().setProtocol("TERMINATE");
-                                    } else {
+                                    if (Infrastructure.getInstance().getResult().equals("Success")) {
+                                        isConnected = true;
                                         try {
                                             drawing.setGraphicElements((DrawingObjectsToStringConverter.fromString(Infrastructure.getInstance().getData())));
                                             drawing.Render();
@@ -600,7 +612,7 @@ public class FXMLController {
                                         joinBtn.setDisable(true);
                                     }
                                     clearMenu();
-                                    clearBufferInfo();
+                                    Infrastructure.getInstance().setResult(null);
                                 }
                             };
                             String result = Infrastructure.getInstance().getResult();
@@ -905,10 +917,13 @@ public class FXMLController {
     private void invite() {
         try {
             Infrastructure.getInstance().setProtocol("INVITE");
+            Infrastructure.getInstance().setName("host");
             Infrastructure.getInstance().setData(DrawingObjectsToStringConverter.toString(((Serializable) drawing.getGraphicElements())));
             socket = new Socket("127.0.0.1", 5000);
-            new ReadThread(socket).start();
-            new WriteThread(socket).start();
+            readThread = new ReadThread(socket);
+            readThread.start();
+            writeThread = new WriteThread(socket);
+            writeThread.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -920,15 +935,17 @@ public class FXMLController {
             Infrastructure.getInstance().setJoinCode(codeTextField.getText());
             Infrastructure.getInstance().setName(nameTextField.getText());
             socket = new Socket("127.0.0.1", 5000);
-            new ReadThread(socket).start();
-            new WriteThread(socket).start();
+            readThread = new ReadThread(socket);
+            readThread.start();
+            writeThread = new WriteThread(socket);
+            writeThread.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private void leave() {
-
+        Infrastructure.getInstance().setProtocol("LEAVE");
     }
 
     //endregion

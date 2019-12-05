@@ -14,12 +14,12 @@ public class Infrastructure {
     private int penSize;
     private int eraserSize;
     private String code;
-    private String protocol;
-    private String data;
-    private String joinCode;
-    private String name;
-    private String result;
-    private String notification;
+    private static String protocol;
+    private static String data;
+    private static String joinCode;
+    private static String name;
+    private static String result;
+    private static String notification;
     //endregion
 
     //region Public Methods

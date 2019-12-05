@@ -5,6 +5,7 @@ import com.starea.datamodel.Infrastructure;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.zip.Inflater;
 
 public class WriteThread extends Thread {
     private PrintWriter writer;
@@ -23,15 +24,38 @@ public class WriteThread extends Thread {
 
     @Override
     public void run() {
-        writer.println(Infrastructure.getInstance().getProtocol());
+        String protocol;
 
-        if(Infrastructure.getInstance().getProtocol().equals("INVITE")) {
-            writer.println(Infrastructure.getInstance().getData());
+        while (true) {
+            protocol = Infrastructure.getInstance().getProtocol();
+            while (protocol == null) {
+                protocol = Infrastructure.getInstance().getProtocol();
+                System.out.println(protocol);
+            }
+            if(protocol.equals("TERMINATE")) {
+                break;
+            }
+            writer.println(protocol);
+            if(protocol.equals("INVITE")) {
+                writer.println(Infrastructure.getInstance().getData());
+            }
+            if (protocol.equals("JOIN")) {
+                writer.println(Infrastructure.getInstance().getName());
+                writer.println(Infrastructure.getInstance().getJoinCode());
+            }
+            if (protocol.equals("LEAVE")) {
+                if (Infrastructure.getInstance().getName().equals("host")) {
+                    writer.println(Infrastructure.getInstance().getCode());
+                    System.out.println(Infrastructure.getInstance().getCode());
+                } else {
+                    writer.println(Infrastructure.getInstance().getJoinCode());
+                    System.out.println(Infrastructure.getInstance().getJoinCode());
+                }
+                writer.println(Infrastructure.getInstance().getName());
+                System.out.println(Infrastructure.getInstance().getName());
+            }
+            Infrastructure.getInstance().setProtocol(null);
         }
 
-        if(Infrastructure.getInstance().getProtocol().equals("JOIN")) {
-            writer.println(Infrastructure.getInstance().getName());
-            writer.println(Infrastructure.getInstance().getJoinCode());
-        }
     }
 }
