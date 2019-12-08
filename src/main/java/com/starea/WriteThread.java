@@ -5,6 +5,7 @@ import com.starea.datamodel.Infrastructure;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.Inflater;
 
 public class WriteThread extends Thread {
@@ -13,49 +14,65 @@ public class WriteThread extends Thread {
 
     public WriteThread(Socket socket) {
         this.socket = socket;
-
-        try {
-            OutputStream output = socket.getOutputStream();
-            writer = new PrintWriter(output, true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void run() {
-        String protocol;
-
         while (true) {
-            protocol = Infrastructure.getInstance().getProtocol();
-            while (protocol == null) {
-                protocol = Infrastructure.getInstance().getProtocol();
-                System.out.println(protocol);
-            }
-            if(protocol.equals("TERMINATE")) {
-                break;
-            }
-            writer.println(protocol);
-            if(protocol.equals("INVITE")) {
-                writer.println(Infrastructure.getInstance().getData());
-            }
-            if (protocol.equals("JOIN")) {
-                writer.println(Infrastructure.getInstance().getName());
-                writer.println(Infrastructure.getInstance().getJoinCode());
-            }
-            if (protocol.equals("LEAVE")) {
-                if (Infrastructure.getInstance().getName().equals("host")) {
-                    writer.println(Infrastructure.getInstance().getCode());
-                    System.out.println(Infrastructure.getInstance().getCode());
-                } else {
-                    writer.println(Infrastructure.getInstance().getJoinCode());
-                    System.out.println(Infrastructure.getInstance().getJoinCode());
+            if(!getSocket().isClosed()) {
+                System.out.println(socket.getLocalPort());
+                try {
+                    OutputStream output = socket.getOutputStream();
+                    writer = new PrintWriter(output, true);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                writer.println(Infrastructure.getInstance().getName());
-                System.out.println(Infrastructure.getInstance().getName());
+                String protocol;
+
+                while (true) {
+                    protocol = Infrastructure.getInstance().getProtocol();
+                    while (protocol == null) {
+                        if (Infrastructure.getInstance().getResult() != null && Infrastructure.getInstance().getResult().equals("Failed")) {
+                            break;
+                        }
+                        protocol = Infrastructure.getInstance().getProtocol();
+                    }
+                    if (Infrastructure.getInstance().getResult() != null && Infrastructure.getInstance().getResult().equals("Failed")) {
+                        break;
+                    }
+                    if (protocol != null && protocol.equals("INVITE")) {
+                        writer.println(protocol + ":" + Infrastructure.getInstance().getData());
+                        System.out.println(Infrastructure.getInstance().getData());
+                    }
+                    if (protocol != null && protocol.equals("JOIN")) {
+                        writer.println(protocol + ":" + Infrastructure.getInstance().getName() + ":" + Infrastructure.getInstance().getCode());
+                    }
+                    if (protocol != null && protocol.equals("LEAVE")) {
+                        writer.println(protocol + ":" + Infrastructure.getInstance().getCode() + ":" + Infrastructure.getInstance().getName());
+                    }
+                    if (protocol != null && protocol.equals("UPDATE")) {
+                        writer.println(protocol + ":" + Infrastructure.getInstance().getCode() + ":" + Infrastructure.getInstance().getData());
+                    }
+
+                    Infrastructure.getInstance().setProtocol(null);
+                }
+
+                try {
+                    socket.close();
+                    System.out.println("Socket2 closed");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            Infrastructure.getInstance().setProtocol(null);
         }
 
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
     }
 }

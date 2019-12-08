@@ -20,57 +20,65 @@ public class ReadThread extends Thread {
 
     public ReadThread(Socket socket) {
         this.socket = socket;
-
-        try {
-            InputStream input = socket.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(input));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void run() {
-        try {
-            while (true) {
-                String response = reader.readLine();
-                if(response.equals("CODE")) {
-                    Infrastructure.getInstance().setCode(reader.readLine());
-                    System.out.println(Infrastructure.getInstance().getCode());
-                }
+        while (true) {
+            if(!getSocket().isClosed()) {
+                try {
+                    InputStream input = socket.getInputStream();
+                    reader = new BufferedReader(new InputStreamReader(input));
+                    while (true) {
+                        String[] response = reader.readLine().split(":", 2);
+                        if (response[0].equals("CODE")) {
+                            Infrastructure.getInstance().setCode(response[1]);
+                        }
 
-                if(response.equals("DATA")) {
-                    Infrastructure.getInstance().setData(reader.readLine());
-                    System.out.println(Infrastructure.getInstance().getData());
-                }
+                        if (response[0].equals("DATA")) {
+                            Infrastructure.getInstance().setData(response[1]);
+                        }
 
-                if(response.equals("NOTIFICATION")) {
-                    Infrastructure.getInstance().setNotification(reader.readLine());
-                    System.out.println(Infrastructure.getInstance().getNotification());
-                }
+                        if (response[0].equals("NOTIFICATION")) {
+                            Infrastructure.getInstance().setNotification(response[1]);
+                        }
 
-                if(response.equals("RESULT")) {
-                    Infrastructure.getInstance().setResult(reader.readLine());
-                    System.out.println(Infrastructure.getInstance().getResult());
-                    if(Infrastructure.getInstance().getResult().equals("Failed")) {
-                        break;
+                        if (response[0].equals("RESULT")) {
+                            Infrastructure.getInstance().setResult(response[1]);
+                        }
+
+                        if(response[0].equals("NEEDUPDATE")) {
+                            Infrastructure.getInstance().setData(response[1]);
+                        }
+
+                        if (Infrastructure.getInstance().getResult() != null && Infrastructure.getInstance().getResult().equals("Failed")) {
+                            break;
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+
                     }
                 }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-
+                try {
+                    socket.close();
+                    System.out.println("Socket1 closed");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
+    }
 
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
     }
 }

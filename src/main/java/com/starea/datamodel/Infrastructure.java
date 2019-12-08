@@ -13,13 +13,12 @@ public class Infrastructure {
     private DrawingMode mode;
     private int penSize;
     private int eraserSize;
-    private String code;
-    private static String protocol;
-    private static String data;
-    private static String joinCode;
-    private static String name;
-    private static String result;
-    private static String notification;
+    private volatile String code;
+    private volatile String protocol;
+    private volatile String data;
+    private volatile String name;
+    private volatile String result;
+    private volatile String notification;
     //endregion
 
     //region Public Methods
@@ -93,14 +92,6 @@ public class Infrastructure {
 
     public void setData(String data) {
         this.data = data;
-    }
-
-    public String getJoinCode() {
-        return joinCode;
-    }
-
-    public void setJoinCode(String joinCode) {
-        this.joinCode = joinCode;
     }
 
     public String getName() {
