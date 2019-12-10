@@ -1,5 +1,6 @@
 package com.starea;
 
+import com.starea.datamodel.Infrastructure;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -28,5 +29,10 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    @Override
+    public void stop() throws Exception {
+        Infrastructure.getInstance().setProtocol("LEAVE");
     }
 }

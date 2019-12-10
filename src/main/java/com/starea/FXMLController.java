@@ -141,6 +141,10 @@ public class FXMLController {
 
         if (((JFXButton) e.getSource()).getId().equals("undoBtn")) {
             drawing.Undo();
+            drawing.getSelectionGraphicElements().clear();
+            if(isConnected && isChanged) {
+                update();
+            }
         }
 
         if (((JFXButton) e.getSource()).getId().equals("exportBtn")) {
@@ -181,13 +185,21 @@ public class FXMLController {
                 export();
             } else if (result.get() == newBtn) {
                 drawing.Clear();
+                if(isConnected) {
+                    leave();
+                }
             } else {
                 alert.close();
             }
         } else {
             drawing.Clear();
+            if(isConnected) {
+                leave();
+            }
         }
     }
+
+
     //endregion
 
     //region Private Methods
@@ -930,7 +942,7 @@ public class FXMLController {
             @Override
             public void handle(MouseEvent event) {
                 drawing.getSelectionGraphicElements().clear();
-                if(isConnected) {
+                if(isConnected && isChanged) {
                     update();
                 }
             }
@@ -946,8 +958,10 @@ public class FXMLController {
             socket = new Socket("127.0.0.1", 5000);
             if(readThread == null && writeThread == null) {
                 readThread = new ReadThread(socket);
+                readThread.setDaemon(true);
                 readThread.start();
                 writeThread = new WriteThread(socket);
+                writeThread.setDaemon(true);
                 writeThread.start();
             } else {
                 readThread.setSocket(socket);

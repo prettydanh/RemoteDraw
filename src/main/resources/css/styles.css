@@ -19,7 +19,7 @@
 .menu-left {
     -fx-alignment: top-center;
     -fx-min-width: 70px;
-    -fx-max-height: 350px;
+    -fx-max-height: 300px;
 }
 
 .menu-right {
