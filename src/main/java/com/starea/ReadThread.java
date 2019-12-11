@@ -43,6 +43,11 @@ public class ReadThread extends Thread {
                             Infrastructure.getInstance().setNotification(response[1]);
                         }
 
+                        if (response[0].equals("MESSAGE")) {
+                            Infrastructure.getInstance().setIncomingMessage(response[1]);
+                            System.out.println(Infrastructure.getInstance().getIncomingMessage());
+                        }
+
                         if (response[0].equals("RESULT")) {
                             Infrastructure.getInstance().setResult(response[1]);
                         }

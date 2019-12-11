@@ -44,6 +44,7 @@ public class WriteThread extends Thread {
                         writer.println(protocol + ":" + Infrastructure.getInstance().getData());
                         System.out.println(Infrastructure.getInstance().getData());
                     }
+
                     if (protocol != null && protocol.equals("JOIN")) {
                         writer.println(protocol + ":" + Infrastructure.getInstance().getName() + ":" + Infrastructure.getInstance().getCode());
                     }
@@ -52,6 +53,9 @@ public class WriteThread extends Thread {
                     }
                     if (protocol != null && protocol.equals("UPDATE")) {
                         writer.println(protocol + ":" + Infrastructure.getInstance().getCode() + ":" + Infrastructure.getInstance().getData());
+                    }
+                    if (protocol != null && protocol.equals("SENDMESSAGE")) {
+                        writer.println(protocol + ":" + Infrastructure.getInstance().getCode() + ":" + Infrastructure.getInstance().getName() + ":" + Infrastructure.getInstance().getOutgoingMessage());
                     }
 
                     Infrastructure.getInstance().setProtocol(null);

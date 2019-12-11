@@ -21,6 +21,7 @@ public class Drawing {
     private double initY;
     private double xDiff;
     private double yDiff;
+    private boolean isFinishedErasing = true;
     //endregion
 
     //region Constructor
@@ -78,6 +79,15 @@ public class Drawing {
                 Eraser eraser = ((Eraser) object);
                 for(int i=0; i<eraser.getPath().size()-2; i+=2) {
                     graphicsContext.clearRect(eraser.getPath().get(i), eraser.getPath().get(i+1), eraser.getEraserSize(), eraser.getEraserSize());
+                }
+                if(!isFinishedErasing) {
+                    if(graphicElements.get(graphicElements.size() - 1) instanceof Eraser) {
+                        Eraser latestEraser = ((Eraser) graphicElements.get(graphicElements.size() - 1));
+                        int size = latestEraser.getPath().size();
+                        graphicsContext.setLineWidth(3);
+                        graphicsContext.setStroke(Color.RED);
+                        graphicsContext.strokeRect(latestEraser.getPath().get(size-2), latestEraser.getPath().get(size-1), latestEraser.getEraserSize(), latestEraser.getEraserSize());
+                    }
                 }
             }
         }
@@ -284,6 +294,7 @@ public class Drawing {
      * @param eraserSize
      */
     public void initEraser(double x, double y, double eraserSize) {
+        isFinishedErasing = false;
         List<Double> eraserPath = new ArrayList<>();
         eraserPath.add(x);
         eraserPath.add(y);
@@ -299,6 +310,11 @@ public class Drawing {
         Eraser eraser = ((Eraser) graphicElements.get(graphicElements.size()-1));
         eraser.getPath().add(x);
         eraser.getPath().add(y);
+        Render();
+    }
+
+    public void finishErasing(boolean isFinished) {
+        this.isFinishedErasing = isFinished;
         Render();
     }
     //endregion

@@ -12,6 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -41,6 +42,7 @@ import java.lang.Object;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.zip.Inflater;
 
 import static java.awt.image.ImageObserver.HEIGHT;
 import static java.awt.image.ImageObserver.WIDTH;
@@ -56,8 +58,6 @@ public class FXMLController {
     @FXML
     private BorderPane artBoard;
     @FXML
-    private SplitMenuButton dropDownMenu;
-    @FXML
     private JFXButton inviteBtn;
     @FXML
     private JFXButton joinBtn;
@@ -70,6 +70,7 @@ public class FXMLController {
     private GridPane shapeMenu;
     private GridPane joinForm;
     private GridPane notificationPopup;
+    private GridPane chatbox;
     private ColorPicker picker;
     private JFXButton submitBtn;
     private List<JFXButton> colorListBtn;
@@ -85,6 +86,9 @@ public class FXMLController {
     private ReadThread readThread;
     private WriteThread writeThread;
     private Socket socket;
+    private JFXTextArea chatboxContent;
+    private JFXTextField messageTextField;
+    private JFXButton sendMessageBtn;
     //endregion
 
     //region Public Method
@@ -142,7 +146,7 @@ public class FXMLController {
         if (((JFXButton) e.getSource()).getId().equals("undoBtn")) {
             drawing.Undo();
             drawing.getSelectionGraphicElements().clear();
-            if(isConnected && isChanged) {
+            if (isConnected && isChanged) {
                 update();
             }
         }
@@ -152,6 +156,10 @@ public class FXMLController {
         }
 
         if (((JFXButton) e.getSource()).getId().equals("inviteBtn")) {
+            createChatbox();
+            artBoard.setMargin(chatbox, new Insets(0, 10, 10, 0));
+            artBoard.setAlignment(chatbox, Pos.BOTTOM_RIGHT);
+            artBoard.setBottom(chatbox);
             invite();
         }
 
@@ -165,6 +173,7 @@ public class FXMLController {
 
         if (((JFXButton) e.getSource()).getId().equals("leaveBtn")) {
             leave();
+            artBoard.getChildren().remove(chatbox);
         }
     }
 
@@ -185,7 +194,7 @@ public class FXMLController {
                 export();
             } else if (result.get() == newBtn) {
                 drawing.Clear();
-                if(isConnected) {
+                if (isConnected) {
                     leave();
                 }
             } else {
@@ -193,7 +202,7 @@ public class FXMLController {
             }
         } else {
             drawing.Clear();
-            if(isConnected) {
+            if (isConnected) {
                 leave();
             }
         }
@@ -339,6 +348,7 @@ public class FXMLController {
 
         Infrastructure.getInstance().setResult(null);
         Infrastructure.getInstance().setNotification(null);
+        Infrastructure.getInstance().setIncomingMessage(null);
 
         Thread notificationThread = new Thread(new Runnable() {
             @Override
@@ -350,6 +360,9 @@ public class FXMLController {
                         createNotificationPopup();
                         leftMenuContainer.setMargin(notificationPopup, new Insets(0, 0, 0, 300));
                         leftMenuContainer.setRight(notificationPopup);
+                        if(Infrastructure.getInstance().getNotification().equals(Infrastructure.getInstance().getCode() + " is your code. Send it to your friend")) {
+                            chatboxContent.appendText(Infrastructure.getInstance().getCode() + " is your code. Send it to your friend" + "\n");
+                        }
                         Infrastructure.getInstance().setNotification(null);
                     }
                 };
@@ -389,6 +402,40 @@ public class FXMLController {
         notificationThread.setDaemon(true);
         notificationThread.start();
 
+        Thread messageThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Runnable addMessage = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (Infrastructure.getInstance().getIncomingMessage() != null) {
+                            chatboxContent.appendText(Infrastructure.getInstance().getIncomingMessage() + "\n");
+                        }
+                        Infrastructure.getInstance().setIncomingMessage(null);
+                    }
+                };
+
+                while (true) {
+                    String message = Infrastructure.getInstance().getIncomingMessage();
+                    try {
+                        while (message == null) {
+                            message = Infrastructure.getInstance().getIncomingMessage();
+                            Thread.sleep(1);
+                        }
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    Platform.runLater(addMessage);
+                }
+
+            }
+
+        });
+        messageThread.setDaemon(true);
+        messageThread.start();
+
         Thread leaveThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -396,6 +443,7 @@ public class FXMLController {
 
                     @Override
                     public void run() {
+                        artBoard.getChildren().remove(chatbox);
                         leaveBtn.setDisable(true);
                         inviteBtn.setDisable(false);
                         joinBtn.setDisable(false);
@@ -538,6 +586,7 @@ public class FXMLController {
     private void clearBuffer() {
         Infrastructure.getInstance().setCode(null);
         Infrastructure.getInstance().setNotification(null);
+        Infrastructure.getInstance().setIncomingMessage(null);
         Infrastructure.getInstance().setResult(null);
         Infrastructure.getInstance().setProtocol(null);
         Infrastructure.getInstance().setName(null);
@@ -662,7 +711,12 @@ public class FXMLController {
                 if (codeTextField.getText().equals("") || nameTextField.getText().equals("")) {
                     Infrastructure.getInstance().setNotification("Please enter name and code to submit");
                 } else {
+                    createChatbox();
+                    artBoard.setMargin(chatbox, new Insets(0, 10, 10, 0));
+                    artBoard.setAlignment(chatbox, Pos.BOTTOM_RIGHT);
+                    artBoard.setBottom(chatbox);
                     join();
+
                 }
             }
         });
@@ -683,6 +737,53 @@ public class FXMLController {
         lb.setStyle("-fx-font-family: 'Open Sans ExtraBold'; -fx-font-size: 20px; -fx-text-fill: #22a7f2");
 
         notificationPopup.add(lb, 0, 0);
+    }
+
+    private void createChatbox() {
+        chatbox = new GridPane();
+        chatbox.getStyleClass().add("menu");
+        chatbox.setMinWidth(300);
+        chatbox.setMaxWidth(300);
+        chatbox.setMinHeight(350);
+        chatbox.setMaxHeight(350);
+        chatbox.setVgap(10);
+
+        ScrollPane scrollPane = new ScrollPane();
+        chatboxContent = new JFXTextArea();
+        chatboxContent.setStyle("-fx-background-color: white;");
+        chatboxContent.setMinWidth(290);
+        chatboxContent.setMaxWidth(290);
+        chatboxContent.setMinHeight(290);
+        chatboxContent.setMaxHeight(290);
+
+        scrollPane.setMinWidth(chatboxContent.getMinWidth());
+        scrollPane.setMinHeight(chatboxContent.getMinHeight());
+        scrollPane.setContent(chatboxContent);
+
+        GridPane sendMessage = new GridPane();
+        messageTextField = new JFXTextField();
+        messageTextField.setPromptText("Send message to your friends");
+        messageTextField.setMinWidth(230);
+        sendMessageBtn = new JFXButton("Send");
+        sendMessageBtn.getStyleClass().add("btn-success");
+        sendMessageBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (!messageTextField.getText().equals("")) {
+                    sendMessage(messageTextField.getText());
+                    messageTextField.setText("");
+                }
+            }
+        });
+
+        sendMessage.setMinWidth(chatboxContent.getMinWidth());
+        sendMessage.setHgap(10);
+        sendMessage.add(messageTextField, 0, 0);
+        sendMessage.add(sendMessageBtn, 1, 0);
+
+        chatbox.add(scrollPane, 0, 0);
+        chatbox.add(sendMessage, 0, 1);
+
     }
 
     /**
@@ -942,8 +1043,11 @@ public class FXMLController {
             @Override
             public void handle(MouseEvent event) {
                 drawing.getSelectionGraphicElements().clear();
-                if(isConnected && isChanged) {
+                if (isConnected && isChanged) {
                     update();
+                }
+                if (Infrastructure.getInstance().getMode() == DrawingMode.ERASER) {
+                    drawing.finishErasing(true);
                 }
             }
         });
@@ -956,7 +1060,7 @@ public class FXMLController {
             Infrastructure.getInstance().setName("host");
             Infrastructure.getInstance().setData(DrawingObjectsToStringConverter.toString(((Serializable) drawing.getGraphicElements())));
             socket = new Socket("127.0.0.1", 5000);
-            if(readThread == null && writeThread == null) {
+            if (readThread == null && writeThread == null) {
                 readThread = new ReadThread(socket);
                 readThread.setDaemon(true);
                 readThread.start();
@@ -979,7 +1083,7 @@ public class FXMLController {
             Infrastructure.getInstance().setCode(codeTextField.getText());
             Infrastructure.getInstance().setName(nameTextField.getText());
             socket = new Socket("127.0.0.1", 5000);
-            if(readThread == null && writeThread == null) {
+            if (readThread == null && writeThread == null) {
                 readThread = new ReadThread(socket);
                 readThread.start();
                 writeThread = new WriteThread(socket);
@@ -1004,6 +1108,11 @@ public class FXMLController {
             e.printStackTrace();
         }
         Infrastructure.getInstance().setProtocol("UPDATE");
+    }
+
+    private void sendMessage(String data) {
+        Infrastructure.getInstance().setOutgoingMessage(data);
+        Infrastructure.getInstance().setProtocol("SENDMESSAGE");
     }
 
     //endregion

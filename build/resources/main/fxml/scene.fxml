@@ -144,15 +144,15 @@
                                 <FontIcon iconLiteral="fas-shapes" iconSize="20"/>
                             </graphic>
                         </JFXButton>
-                        <JFXButton fx:id="uploadBtn" styleClass="btn, btn-default, menu-button"
-                                   onAction="#onButtonClicked">
-                            <tooltip>
-                                <Tooltip text="Upload"/>
-                            </tooltip>
-                            <graphic>
-                                <FontIcon iconLiteral="fas-upload" iconSize="20"/>
-                            </graphic>
-                        </JFXButton>
+<!--                        <JFXButton fx:id="uploadBtn" styleClass="btn, btn-default, menu-button"-->
+<!--                                   onAction="#onButtonClicked">-->
+<!--                            <tooltip>-->
+<!--                                <Tooltip text="Upload"/>-->
+<!--                            </tooltip>-->
+<!--                            <graphic>-->
+<!--                                <FontIcon iconLiteral="fas-upload" iconSize="20"/>-->
+<!--                            </graphic>-->
+<!--                        </JFXButton>-->
                     </VBox>
                 </left>
             </BorderPane>

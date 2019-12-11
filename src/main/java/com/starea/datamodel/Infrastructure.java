@@ -19,6 +19,8 @@ public class Infrastructure {
     private volatile String name;
     private volatile String result;
     private volatile String notification;
+    private volatile String incomingMessage;
+    private volatile String outgoingMessage;
     //endregion
 
     //region Public Methods
@@ -118,5 +120,21 @@ public class Infrastructure {
         this.notification = notification;
     }
 
-    //endregion
+    public String getIncomingMessage() {
+        return incomingMessage;
+    }
+
+    public void setIncomingMessage(String incomingMessage) {
+        this.incomingMessage = incomingMessage;
+    }
+
+    public String getOutgoingMessage() {
+        return outgoingMessage;
+    }
+
+    public void setOutgoingMessage(String outgoingMessage) {
+        this.outgoingMessage = outgoingMessage;
+    }
+
+//endregion
 }
