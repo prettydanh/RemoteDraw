@@ -3,7 +3,7 @@ package com.starea.datamodel;
 import javafx.scene.paint.Color;
 
 /**
- * Define any ellipse that is drew on the canvas
+ * Define any ellipse that is drawn on the canvas
  * A child of Shape class
  */
 public class Ellipse extends Shape {

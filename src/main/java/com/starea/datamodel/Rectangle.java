@@ -3,7 +3,7 @@ package com.starea.datamodel;
 import javafx.scene.paint.Color;
 
 /**
- * Define any rectangle that is drew on the canvas
+ * Define any rectangle that is drawn on the canvas
  * A child of Shape class
  */
 public class Rectangle extends Shape {

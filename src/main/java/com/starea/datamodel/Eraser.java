@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 import java.util.List;
 
 /**
- * Define any eraser that is drew on the canvas
+ * Define any erasing path on the canvas
  */
 public class Eraser extends DrawingObject {
 

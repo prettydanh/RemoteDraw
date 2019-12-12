@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 import java.util.List;
 
 /**
- * Define any stroke that is drew on the canvas
+ * Define any path of a pen that is drawn on the canvas
  */
 public class Stroke extends DrawingObject {
     //region Private Attributes
