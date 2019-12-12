@@ -1,5 +1,4 @@
 # Remote Draw Application
-Project Description
 # Definition
 The drawing board provides users abilities to customise their drawings; we could find some applications such as Windows Paint, Artweaver, GIMP, etc. However, these programs only available for one user at a time. <b>Remote Draw</b> can allow multiple users to draw on board simultaneously through the network, which helps users spread their idea to other people more comfortable.
 # Technologies:
