@@ -42,11 +42,11 @@
                 <columnConstraints>
                     <ColumnConstraints halignment="CENTER"/>
                 </columnConstraints>
-<!--                <ImageView fitWidth="60" fitHeight="60" GridPane.rowIndex="0" GridPane.columnIndex="0">-->
-<!--                    <image>-->
-<!--                        <Image url="@../images/logo.png"/>-->
-<!--                    </image>-->
-<!--                </ImageView>-->
+                <ImageView fitWidth="60" fitHeight="60" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                    <image>
+                        <Image url="@../images/logo.png"/>
+                    </image>
+                </ImageView>
                 <GridPane styleClass="menu, menu-top" GridPane.columnIndex="1" GridPane.rowIndex="0" hgap="10">
                     <SplitMenuButton style="-fx-font-family: 'Open Sans ExtraBold'; -fx-font-size: 20px"
                                      GridPane.rowIndex="0" GridPane.columnIndex="0"

@@ -7,20 +7,20 @@ import javafx.scene.paint.Color;
  */
 public class Infrastructure {
     //region Private Attributes
-    private static Infrastructure instance = new Infrastructure();
-    private String color;
-    private int thickness;
-    private DrawingMode mode;
-    private int penSize;
-    private int eraserSize;
-    private volatile String code;
-    private volatile String protocol;
-    private volatile String data;
-    private volatile String name;
-    private volatile String result;
-    private volatile String notification;
-    private volatile String incomingMessage;
-    private volatile String outgoingMessage;
+    private static volatile Infrastructure instance;
+    private static String color;
+    private static int thickness;
+    private static DrawingMode mode;
+    private static int penSize;
+    private static int eraserSize;
+    private static volatile String code;
+    private static volatile String protocol;
+    private static volatile String data;
+    private static volatile String name;
+    private static volatile String result;
+    private static volatile String notification;
+    private static volatile String incomingMessage;
+    private static volatile String outgoingMessage;
     //endregion
 
     //region Public Methods
@@ -29,6 +29,13 @@ public class Infrastructure {
      * @return a instance of Infrastructure class
      */
     public static Infrastructure getInstance() {
+        if(instance == null) {
+            synchronized (Infrastructure.class) {
+                if(instance == null) {
+                    instance = new Infrastructure();
+                }
+            }
+        }
         return instance;
     }
 
@@ -53,87 +60,87 @@ public class Infrastructure {
     }
 
     public void setColor(String color) {
-        this.color = color;
+        Infrastructure.color = color;
     }
 
     public void setThickness(int thickness) {
-        this.thickness = thickness;
+        Infrastructure.thickness = thickness;
     }
 
     public void setMode(DrawingMode mode) {
-        this.mode = mode;
+        Infrastructure.mode = mode;
     }
 
     public void setPenSize(int penSize) {
-        this.penSize = penSize;
+        Infrastructure.penSize = penSize;
     }
 
     public void setEraserSize(int eraserSize) {
-        this.eraserSize = eraserSize;
+        Infrastructure.eraserSize = eraserSize;
     }
 
-    public String getCode() {
+    public synchronized String getCode() {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public synchronized void setCode(String code) {
+        Infrastructure.code = code;
     }
 
-    public String getProtocol() {
+    public synchronized String getProtocol() {
         return protocol;
     }
 
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
+    public synchronized void setProtocol(String protocol) {
+        Infrastructure.protocol = protocol;
     }
 
-    public String getData() {
+    public synchronized String getData() {
         return data;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public synchronized void setData(String data) {
+        Infrastructure.data = data;
     }
 
-    public String getName() {
+    public synchronized String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public synchronized void setName(String name) {
+        Infrastructure.name = name;
     }
 
-    public String getResult() {
+    public synchronized String getResult() {
         return result;
     }
 
-    public void setResult(String result) {
-        this.result = result;
+    public synchronized void setResult(String result) {
+        Infrastructure.result = result;
     }
 
-    public String getNotification() {
+    public synchronized String getNotification() {
         return notification;
     }
 
-    public void setNotification(String notification) {
-        this.notification = notification;
+    public synchronized void setNotification(String notification) {
+            Infrastructure.notification = notification;
     }
 
-    public String getIncomingMessage() {
+    public synchronized String getIncomingMessage() {
         return incomingMessage;
     }
 
-    public void setIncomingMessage(String incomingMessage) {
-        this.incomingMessage = incomingMessage;
+    public synchronized void setIncomingMessage(String incomingMessage) {
+        Infrastructure.incomingMessage = incomingMessage;
     }
 
-    public String getOutgoingMessage() {
+    public synchronized String getOutgoingMessage() {
         return outgoingMessage;
     }
 
-    public void setOutgoingMessage(String outgoingMessage) {
-        this.outgoingMessage = outgoingMessage;
+    public synchronized void setOutgoingMessage(String outgoingMessage) {
+        Infrastructure.outgoingMessage = outgoingMessage;
     }
 
 //endregion

@@ -69,10 +69,9 @@ public class FXMLController {
     private GridPane eraserMenu;
     private GridPane shapeMenu;
     private GridPane joinForm;
-    private GridPane notificationPopup;
     private GridPane chatbox;
+    private GridPane notificationPopup;
     private ColorPicker picker;
-    private JFXButton submitBtn;
     private List<JFXButton> colorListBtn;
     private List<JFXButton> shapeListBtn;
     private JFXSlider penSizeSlider;
@@ -88,7 +87,6 @@ public class FXMLController {
     private Socket socket;
     private JFXTextArea chatboxContent;
     private JFXTextField messageTextField;
-    private JFXButton sendMessageBtn;
     //endregion
 
     //region Public Method
@@ -107,14 +105,14 @@ public class FXMLController {
     @FXML
     public void onButtonClicked(ActionEvent e) {
         if (((JFXButton) e.getSource()).getId().equals("colorBtn")) {
-            leftMenuContainer.setMargin(colorMenu, new Insets(110, 0, 0, 10));
+            BorderPane.setMargin(colorMenu, new Insets(110, 0, 0, 10));
             leftMenuContainer.setRight(colorMenu);
         } else {
             leftMenuContainer.getChildren().remove(colorMenu);
         }
 
         if (((JFXButton) e.getSource()).getId().equals("pencilBtn")) {
-            leftMenuContainer.setMargin(pencilMenu, new Insets(155, 0, 0, 10));
+            BorderPane.setMargin(pencilMenu, new Insets(155, 0, 0, 10));
             leftMenuContainer.setRight(pencilMenu);
             Infrastructure.getInstance().setMode(DrawingMode.PENCIL);
         } else {
@@ -122,7 +120,7 @@ public class FXMLController {
         }
 
         if (((JFXButton) e.getSource()).getId().equals("eraserBtn")) {
-            leftMenuContainer.setMargin(eraserMenu, new Insets(200, 0, 0, 10));
+            BorderPane.setMargin(eraserMenu, new Insets(200, 0, 0, 10));
             leftMenuContainer.setRight(eraserMenu);
             Infrastructure.getInstance().setMode(DrawingMode.ERASER);
         } else {
@@ -130,7 +128,7 @@ public class FXMLController {
         }
 
         if (((JFXButton) e.getSource()).getId().equals("shapeBtn")) {
-            leftMenuContainer.setMargin(shapeMenu, new Insets(245, 0, 0, 10));
+            BorderPane.setMargin(shapeMenu, new Insets(245, 0, 0, 10));
             leftMenuContainer.setRight(shapeMenu);
         } else {
             leftMenuContainer.getChildren().remove(shapeMenu);
@@ -157,15 +155,15 @@ public class FXMLController {
 
         if (((JFXButton) e.getSource()).getId().equals("inviteBtn")) {
             createChatbox();
-            artBoard.setMargin(chatbox, new Insets(0, 10, 10, 0));
-            artBoard.setAlignment(chatbox, Pos.BOTTOM_RIGHT);
+            BorderPane.setMargin(chatbox, new Insets(0, 10, 10, 0));
+            BorderPane.setAlignment(chatbox, Pos.BOTTOM_RIGHT);
             artBoard.setBottom(chatbox);
             invite();
         }
 
         if (((JFXButton) e.getSource()).getId().equals("joinBtn")) {
             createJoinForm();
-            leftMenuContainer.setMargin(joinForm, new Insets(0, 0, 0, 510));
+            BorderPane.setMargin(joinForm, new Insets(0, 0, 0, 510));
             leftMenuContainer.setRight(joinForm);
         } else {
             leftMenuContainer.getChildren().remove(joinForm);
@@ -358,9 +356,9 @@ public class FXMLController {
                     @Override
                     public void run() {
                         createNotificationPopup();
-                        leftMenuContainer.setMargin(notificationPopup, new Insets(0, 0, 0, 300));
+                        BorderPane.setMargin(notificationPopup, new Insets(0, 0, 0, 300));
                         leftMenuContainer.setRight(notificationPopup);
-                        if(Infrastructure.getInstance().getNotification().equals(Infrastructure.getInstance().getCode() + " is your code. Send it to your friend")) {
+                        if (Infrastructure.getInstance().getNotification() != null && Infrastructure.getInstance().getNotification().equals(Infrastructure.getInstance().getCode() + " is your code. Send it to your friend")) {
                             chatboxContent.appendText(Infrastructure.getInstance().getCode() + " is your code. Send it to your friend" + "\n");
                         }
                         Infrastructure.getInstance().setNotification(null);
@@ -703,7 +701,7 @@ public class FXMLController {
         codeTextField.setPromptText("Code");
         nameTextField = new JFXTextField();
         nameTextField.setPromptText("Name");
-        submitBtn = new JFXButton("Submit");
+        JFXButton submitBtn = new JFXButton("Submit");
         submitBtn.getStyleClass().add("btn-primary");
         submitBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -764,7 +762,7 @@ public class FXMLController {
         messageTextField = new JFXTextField();
         messageTextField.setPromptText("Send message to your friends");
         messageTextField.setMinWidth(230);
-        sendMessageBtn = new JFXButton("Send");
+        JFXButton sendMessageBtn = new JFXButton("Send");
         sendMessageBtn.getStyleClass().add("btn-success");
         sendMessageBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
