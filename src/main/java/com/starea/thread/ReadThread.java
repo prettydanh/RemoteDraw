@@ -1,4 +1,4 @@
-package com.starea;
+package com.starea.thread;
 
 import com.starea.datamodel.Drawing;
 import com.starea.datamodel.Infrastructure;
@@ -48,15 +48,15 @@ public class ReadThread extends Thread {
                             System.out.println(Infrastructure.getInstance().getIncomingMessage());
                         }
 
-                        if (response[0].equals("RESULT")) {
-                            Infrastructure.getInstance().setResult(response[1]);
+                        if (response[0].equals("CONNECTION_STATE")) {
+                            Infrastructure.getInstance().setConnectionState(response[1]);
                         }
 
-                        if(response[0].equals("NEEDUPDATE")) {
+                        if(response[0].equals("NEW_UPDATE")) {
                             Infrastructure.getInstance().setData(response[1]);
                         }
 
-                        if (Infrastructure.getInstance().getResult() != null && Infrastructure.getInstance().getResult().equals("Failed")) {
+                        if (Infrastructure.getInstance().getConnectionState() != null && Infrastructure.getInstance().getConnectionState().equals("Closed")) {
                             break;
                         }
                     }

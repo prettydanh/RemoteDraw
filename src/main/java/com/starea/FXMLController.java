@@ -3,49 +3,36 @@ package com.starea;
 import com.jfoenix.controls.*;
 import com.starea.converter.DrawingObjectsToStringConverter;
 import com.starea.datamodel.*;
+import com.starea.thread.ReadThread;
+import com.starea.thread.WriteThread;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import javafx.stage.Window;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.io.*;
-import java.lang.Object;
 
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
-import java.util.zip.Inflater;
-
-import static java.awt.image.ImageObserver.HEIGHT;
-import static java.awt.image.ImageObserver.WIDTH;
 
 public class FXMLController {
     //region Private Attributes
@@ -159,6 +146,45 @@ public class FXMLController {
             BorderPane.setAlignment(chatbox, Pos.BOTTOM_RIGHT);
             artBoard.setBottom(chatbox);
             invite();
+            Task<Void> task = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    String code = Infrastructure.getInstance().getCode();
+                    try {
+                        while (code == null) {
+                            code = Infrastructure.getInstance().getCode();
+                            Thread.sleep(1);
+                        }
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            };
+
+            task.stateProperty().addListener(new ChangeListener<Worker.State>() {
+                @Override
+                public void changed(ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) {
+                    if(newValue == Worker.State.SCHEDULED) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+
+                    if(newValue == Worker.State.SUCCEEDED) {
+                        inviteBtn.setDisable(true);
+                        leaveBtn.setDisable(false);
+                        joinBtn.setDisable(true);
+                        chatboxContent.appendText(Infrastructure.getInstance().getCode() + " is your code. Send it to your friends" + "\n");
+                        isConnected = true;
+                    }
+                }
+            });
+
+            new Thread(task).start();
         }
 
         if (((JFXButton) e.getSource()).getId().equals("joinBtn")) {
@@ -344,9 +370,7 @@ public class FXMLController {
         //endregion
         drawing = new Drawing(canvas);
 
-        Infrastructure.getInstance().setResult(null);
-        Infrastructure.getInstance().setNotification(null);
-        Infrastructure.getInstance().setIncomingMessage(null);
+        clearBuffer();
 
         Thread notificationThread = new Thread(new Runnable() {
             @Override
@@ -358,9 +382,6 @@ public class FXMLController {
                         createNotificationPopup();
                         BorderPane.setMargin(notificationPopup, new Insets(0, 0, 0, 300));
                         leftMenuContainer.setRight(notificationPopup);
-                        if (Infrastructure.getInstance().getNotification() != null && Infrastructure.getInstance().getNotification().equals(Infrastructure.getInstance().getCode() + " is your code. Send it to your friend")) {
-                            chatboxContent.appendText(Infrastructure.getInstance().getCode() + " is your code. Send it to your friend" + "\n");
-                        }
                         Infrastructure.getInstance().setNotification(null);
                     }
                 };
@@ -383,6 +404,7 @@ public class FXMLController {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+
                     Platform.runLater(displayNotification);
 
                     try {
@@ -447,6 +469,7 @@ public class FXMLController {
                         joinBtn.setDisable(false);
                         Infrastructure.getInstance().setNotification("Disconnect Successfully");
                         isConnected = false;
+                        clearBuffer();
                     }
                 };
 
@@ -469,81 +492,6 @@ public class FXMLController {
         });
         leaveThread.setDaemon(true);
         leaveThread.start();
-
-        Thread inviteThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Runnable updater = new Runnable() {
-
-                    @Override
-                    public void run() {
-                        inviteBtn.setDisable(true);
-                        leaveBtn.setDisable(false);
-                        joinBtn.setDisable(true);
-                        Infrastructure.getInstance().setNotification(Infrastructure.getInstance().getCode() + " is your code. Send it to your friend");
-                        isConnected = true;
-                    }
-                };
-
-                while (true) {
-                    String notification = Infrastructure.getInstance().getNotification();
-                    try {
-                        while (notification == null || !notification.equals("Open connection Successfully")) {
-                            notification = Infrastructure.getInstance().getNotification();
-                            Thread.sleep(1);
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    Platform.runLater(updater);
-                }
-            }
-
-        });
-        inviteThread.setDaemon(true);
-        inviteThread.start();
-
-        Thread joinThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Runnable updater = new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            drawing.setGraphicElements((DrawingObjectsToStringConverter.fromString(Infrastructure.getInstance().getData())));
-                            drawing.Render();
-                        } catch (IOException | ClassNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                        inviteBtn.setDisable(true);
-                        leaveBtn.setDisable(false);
-                        joinBtn.setDisable(true);
-
-                        clearMenu();
-                        Infrastructure.getInstance().setNotification("Enjoy");
-                        isConnected = true;
-                    }
-                };
-                while (true) {
-                    String notification = Infrastructure.getInstance().getNotification();
-                    try {
-                        while (notification == null || !notification.equals("Join Successfully")) {
-                            notification = Infrastructure.getInstance().getNotification();
-                            Thread.sleep(1);
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    Platform.runLater(updater);
-                }
-            }
-
-        });
-        joinThread.setDaemon(true);
-        joinThread.start();
 
         Thread updateThread = new Thread(new Runnable() {
             @Override
@@ -583,12 +531,10 @@ public class FXMLController {
 
     private void clearBuffer() {
         Infrastructure.getInstance().setCode(null);
-        Infrastructure.getInstance().setNotification(null);
-        Infrastructure.getInstance().setIncomingMessage(null);
-        Infrastructure.getInstance().setResult(null);
         Infrastructure.getInstance().setProtocol(null);
-        Infrastructure.getInstance().setName(null);
+        Infrastructure.getInstance().setConnectionState(null);
         Infrastructure.getInstance().setData(null);
+        Infrastructure.getInstance().setName(null);
     }
 
     /**
@@ -710,11 +656,57 @@ public class FXMLController {
                     Infrastructure.getInstance().setNotification("Please enter name and code to submit");
                 } else {
                     createChatbox();
-                    artBoard.setMargin(chatbox, new Insets(0, 10, 10, 0));
-                    artBoard.setAlignment(chatbox, Pos.BOTTOM_RIGHT);
+                    BorderPane.setMargin(chatbox, new Insets(0, 10, 10, 0));
+                    BorderPane.setAlignment(chatbox, Pos.BOTTOM_RIGHT);
                     artBoard.setBottom(chatbox);
                     join();
+                    Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                            String data = Infrastructure.getInstance().getData();
+                            try {
+                                while (data == null) {
+                                    data = Infrastructure.getInstance().getData();
+                                    Thread.sleep(1);
+                                }
 
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        }
+                    };
+
+                    task.stateProperty().addListener(new ChangeListener<Worker.State>() {
+                        @Override
+                        public void changed(ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) {
+                            if(newValue == Worker.State.SCHEDULED) {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+
+                            if(newValue == Worker.State.SUCCEEDED) {
+                                try {
+                                    drawing.setGraphicElements((DrawingObjectsToStringConverter.fromString(Infrastructure.getInstance().getData())));
+                                    drawing.Render();
+                                } catch (IOException | ClassNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                                inviteBtn.setDisable(true);
+                                leaveBtn.setDisable(false);
+                                joinBtn.setDisable(true);
+
+                                clearMenu();
+                                Infrastructure.getInstance().setNotification("Enjoy");
+                                isConnected = true;
+                            }
+                        }
+                    });
+
+                    new Thread(task).start();
                 }
             }
         });
@@ -1110,7 +1102,7 @@ public class FXMLController {
 
     private void sendMessage(String data) {
         Infrastructure.getInstance().setOutgoingMessage(data);
-        Infrastructure.getInstance().setProtocol("SENDMESSAGE");
+        Infrastructure.getInstance().setProtocol("SEND_MESSAGE");
     }
 
     //endregion

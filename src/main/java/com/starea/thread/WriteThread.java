@@ -1,4 +1,4 @@
-package com.starea;
+package com.starea.thread;
 
 import com.starea.converter.DrawingObjectsToStringConverter;
 import com.starea.datamodel.Infrastructure;
@@ -32,12 +32,12 @@ public class WriteThread extends Thread {
                 while (true) {
                     protocol = Infrastructure.getInstance().getProtocol();
                     while (protocol == null) {
-                        if (Infrastructure.getInstance().getResult() != null && Infrastructure.getInstance().getResult().equals("Failed")) {
+                        if (Infrastructure.getInstance().getConnectionState() != null && Infrastructure.getInstance().getConnectionState().equals("Closed")) {
                             break;
                         }
                         protocol = Infrastructure.getInstance().getProtocol();
                     }
-                    if (Infrastructure.getInstance().getResult() != null && Infrastructure.getInstance().getResult().equals("Failed")) {
+                    if (Infrastructure.getInstance().getConnectionState() != null && Infrastructure.getInstance().getConnectionState().equals("Closed")) {
                         break;
                     }
                     if (protocol != null && protocol.equals("INVITE")) {
@@ -54,7 +54,7 @@ public class WriteThread extends Thread {
                     if (protocol != null && protocol.equals("UPDATE")) {
                         writer.println(protocol + ":" + Infrastructure.getInstance().getCode() + ":" + Infrastructure.getInstance().getData());
                     }
-                    if (protocol != null && protocol.equals("SENDMESSAGE")) {
+                    if (protocol != null && protocol.equals("SEND_MESSAGE")) {
                         writer.println(protocol + ":" + Infrastructure.getInstance().getCode() + ":" + Infrastructure.getInstance().getName() + ":" + Infrastructure.getInstance().getOutgoingMessage());
                     }
 

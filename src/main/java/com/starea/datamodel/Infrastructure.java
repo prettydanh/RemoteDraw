@@ -17,7 +17,7 @@ public class Infrastructure {
     private static volatile String protocol;
     private static volatile String data;
     private static volatile String name;
-    private static volatile String result;
+    private static volatile String connectionState;
     private static volatile String notification;
     private static volatile String incomingMessage;
     private static volatile String outgoingMessage;
@@ -29,9 +29,9 @@ public class Infrastructure {
      * @return a instance of Infrastructure class
      */
     public static Infrastructure getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             synchronized (Infrastructure.class) {
-                if(instance == null) {
+                if (instance == null) {
                     instance = new Infrastructure();
                 }
             }
@@ -111,20 +111,12 @@ public class Infrastructure {
         Infrastructure.name = name;
     }
 
-    public synchronized String getResult() {
-        return result;
-    }
-
-    public synchronized void setResult(String result) {
-        Infrastructure.result = result;
-    }
-
     public synchronized String getNotification() {
         return notification;
     }
 
     public synchronized void setNotification(String notification) {
-            Infrastructure.notification = notification;
+        Infrastructure.notification = notification;
     }
 
     public synchronized String getIncomingMessage() {
@@ -143,5 +135,13 @@ public class Infrastructure {
         Infrastructure.outgoingMessage = outgoingMessage;
     }
 
-//endregion
+    public synchronized String getConnectionState() {
+        return connectionState;
+    }
+
+    public synchronized void setConnectionState(String connectionState) {
+        Infrastructure.connectionState = connectionState;
+    }
+
+    //endregion
 }
